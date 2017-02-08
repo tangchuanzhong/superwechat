@@ -19,6 +19,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.hyphenate.EMError;
@@ -43,7 +44,7 @@ import cn.ucai.superwechat.utils.ResultUtils;
  * register screen
  */
 public class RegisterActivity extends BaseActivity {
-    private static final String TAG=RegisterActivity.class.getSimpleName();
+    private static final String TAG = RegisterActivity.class.getSimpleName();
     @BindView(R.id.et_username)
     EditText etUsername;
     @BindView(R.id.et_nickname)
@@ -59,6 +60,8 @@ public class RegisterActivity extends BaseActivity {
     String usernick;
     String pwd;
     ProgressDialog pd;
+    @BindView(R.id.txt_title)
+    TextView txtTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +69,8 @@ public class RegisterActivity extends BaseActivity {
         setContentView(R.layout.em_activity_register);
         ButterKnife.bind(this);
         imgBack.setVisibility(View.VISIBLE);
+        txtTitle.setVisibility(View.VISIBLE);
+        txtTitle.setText(R.string.register);
     }
 
     public void register() {
@@ -103,7 +108,7 @@ public class RegisterActivity extends BaseActivity {
         NetDao.register(this, username, usernick, pwd, new OnCompleteListener<String>() {
             @Override
             public void onSuccess(String s) {
-                L.e(TAG,"register,s="+s);
+                L.e(TAG, "register,s=" + s);
                 if (s != null) {
                     Result result = ResultUtils.getResultFromJson(s, null);
                     if (result != null) {
@@ -122,7 +127,7 @@ public class RegisterActivity extends BaseActivity {
                         pd.dismiss();
                         CommonUtils.showShortToast(R.string.Registration_failed);
                     }
-                }else {
+                } else {
                     pd.dismiss();
                     CommonUtils.showShortToast(R.string.Registration_failed);
                 }
@@ -132,7 +137,7 @@ public class RegisterActivity extends BaseActivity {
             public void onError(String error) {
                 pd.dismiss();
                 CommonUtils.showShortToast(R.string.Registration_failed);
-                L.e(TAG,"error="+error);
+                L.e(TAG, "error=" + error);
             }
         });
     }
@@ -184,12 +189,12 @@ public class RegisterActivity extends BaseActivity {
         NetDao.unRegister(this, username, new OnCompleteListener<String>() {
             @Override
             public void onSuccess(String result) {
-                L.e(TAG,"result="+result);
+                L.e(TAG, "result=" + result);
             }
 
             @Override
             public void onError(String error) {
-                L.e(TAG,"error="+error);
+                L.e(TAG, "error=" + error);
             }
         });
     }

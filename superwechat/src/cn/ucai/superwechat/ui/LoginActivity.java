@@ -60,9 +60,6 @@ public class LoginActivity extends BaseActivity {
 		}
 		setContentView(R.layout.em_activity_login);
 
-		usernameEditText = (EditText) findViewById(R.id.username);
-		passwordEditText = (EditText) findViewById(R.id.password);
-
 		// if user changed, clear the password
 		usernameEditText.addTextChangedListener(new TextWatcher() {
 			@Override

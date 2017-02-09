@@ -33,11 +33,19 @@ public class NetDao {
                 .execute(listener);
     }
     public static void login(Context context, String username, String password,
-                             OkHttpUtils.OnCompleteListener<String> listener){
+                             OnCompleteListener<String> listener){
         OkHttpUtils<String> utils=new OkHttpUtils<>(context);
         utils.setRequestUrl(I.REQUEST_LOGIN)
                 .addParam(I.User.USER_NAME,username)
                 .addParam(I.User.PASSWORD,MD5.getMessageDigest(password))
+                .targetClass(String.class)
+                .execute(listener);
+    }
+    public static void getUserInfoByUsername(Context context, String username,
+                                             OnCompleteListener<String>listener){
+        OkHttpUtils<String> utils=new OkHttpUtils<>(context);
+        utils.setRequestUrl(I.REQUEST_FIND_USER)
+                .addParam(I.User.USER_NAME,username)
                 .targetClass(String.class)
                 .execute(listener);
     }

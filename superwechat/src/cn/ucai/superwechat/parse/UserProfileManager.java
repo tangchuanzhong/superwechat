@@ -2,6 +2,7 @@ package cn.ucai.superwechat.parse;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 
 import com.hyphenate.EMValueCallBack;
 import com.hyphenate.chat.EMClient;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserProfileManager {
+	private static final String TAG = UserProfileManager.class.getSimpleName();
 
 	/**
 	 * application context
@@ -157,8 +159,8 @@ public class UserProfileManager {
 			@Override
 			public void onSuccess(EaseUser value) {
 			    if(value != null){
-//   				setCurrentUserNick(value.getNick());
-//   				setCurrentUserAvatar(value.getAvatar());
+   				setCurrentUserNick(value.getNick());
+  				setCurrentUserAvatar(value.getAvatar());
 			    }
 			}
 
@@ -171,17 +173,20 @@ public class UserProfileManager {
 		NetDao.getUserInfoByUsername(activity, EMClient.getInstance().getCurrentUser(), new OnCompleteListener<String>() {
 			@Override
 			public void onSuccess(String s) {
-				if (s!=null){
-					Result result= ResultUtils.getListResultFromJson(s,User.class);
-					if (result!=null&&result.isRetMsg()){
-						User user= (User) result.getRetData();
-						//sava user info to db
-						setCurrentUserNick(user.getMUserNick());
-						setCurrentUserAvatar(user.getAvatar());
+				if (s != null) {
+					Result result = ResultUtils.getListResultFromJson(s, User.class);
+					if (result != null && result.isRetMsg()) {
+						User user = (User) result.getRetData();
+						Log.e(TAG,"user="+user);
+						if (user != null) {
+							//sava user info to db
+							SuperWeChatHelper.getInstance().saveAppContact(user);
+							setCurrentUserNick(user.getMUserNick());
+							setCurrentUserAvatar(user.getAvatar());
+						}
 					}
 				}
 			}
-
 			@Override
 			public void onError(String error) {
 

@@ -131,8 +131,8 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
         conversationListFragment = new ConversationListFragment();
         contactListFragment = new ContactListFragment();
         discoverFragment=new DiscoverFragment();
-        settingsFragment = new SettingsFragment();
-        fragments = new Fragment[]{conversationListFragment, contactListFragment,discoverFragment, settingsFragment};
+        profileFragment = new ProfileFragment();
+        fragments = new Fragment[]{conversationListFragment, contactListFragment,discoverFragment, profileFragment};
 //        getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, conversationListFragment)
 //                .add(R.id.fragment_container, contactListFragment).hide(contactListFragment).show(conversationListFragment)
 //                .commit();
@@ -140,7 +140,7 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
         adapter.addFragment(conversationListFragment,"微信");
         adapter.addFragment(contactListFragment,"通讯录");
         adapter.addFragment(discoverFragment,"发现");
-        adapter.addFragment(settingsFragment,"我");
+        adapter.addFragment(profileFragment,"我");
         layoutViewpage.setAdapter(adapter);
         layoutViewpage.setCurrentItem(0);
         layoutTabhost.setChecked(0);
@@ -529,7 +529,7 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
     private BroadcastReceiver internalDebugReceiver;
     private ConversationListFragment conversationListFragment;
     private ContactListFragment contactListFragment;
-    private SettingsFragment settingsFragment;
+    private ProfileFragment profileFragment;
     private DiscoverFragment discoverFragment;
     private BroadcastReceiver broadcastReceiver;
     private LocalBroadcastManager broadcastManager;

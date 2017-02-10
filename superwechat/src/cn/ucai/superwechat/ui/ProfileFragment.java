@@ -30,6 +30,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.ucai.superwechat.Constant;
 import cn.ucai.superwechat.R;
+import cn.ucai.superwechat.utils.MFGT;
 
 /**
  * settings screen
@@ -87,7 +88,17 @@ public class ProfileFragment extends Fragment {
                 RedPacketUtil.startChangeActivity(getActivity());
                 break;
             case R.id.tv_profile_settings:
+                MFGT.gotoSettings(getActivity());
                 break;
         }
     }
+//    @Override
+//    public void onSaveInstanceState(Bundle outState) {
+//        super.onSaveInstanceState(outState);
+//        if(((MainActivity)this).isConflict){
+//            outState.putBoolean("isConflict", true);
+//        }else if(((MainActivity)this).getCurrentAccountRemoved()){
+//            outState.putBoolean(Constant.ACCOUNT_REMOVED, true);
+//        }
+//    }
 }

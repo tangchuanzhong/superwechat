@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.easemob.redpacketui.utils.RedPacketUtil;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.easeui.utils.EaseUserUtils;
 
@@ -83,6 +84,7 @@ public class ProfileFragment extends Fragment {
             case R.id.layout_profile_view:
                 break;
             case R.id.tv_profile_money:
+                RedPacketUtil.startChangeActivity(getActivity());
                 break;
             case R.id.tv_profile_settings:
                 break;

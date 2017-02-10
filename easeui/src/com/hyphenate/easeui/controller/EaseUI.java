@@ -11,6 +11,7 @@ import com.hyphenate.chat.EMMessage;
 import com.hyphenate.chat.EMOptions;
 import com.hyphenate.easeui.domain.EaseEmojicon;
 import com.hyphenate.easeui.domain.EaseUser;
+import com.hyphenate.easeui.domain.User;
 import com.hyphenate.easeui.model.EaseAtMessageHelper;
 import com.hyphenate.easeui.model.EaseNotifier;
 
@@ -180,10 +181,7 @@ public final class EaseUI {
         return activityList.size() != 0;
     }
     
-    /**
-     * set user profile provider
-     * @param provider
-     */
+
     public void setUserProfileProvider(EaseUserProfileProvider userProvider){
         this.userProvider = userProvider;
     }
@@ -246,6 +244,8 @@ public final class EaseUI {
          * @return
          */
         EaseUser getUser(String username);
+
+        User getAppUser(String username);
     }
     
     /**

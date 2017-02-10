@@ -22,6 +22,7 @@ import com.hyphenate.chat.EMTextMessageBody;
 import com.hyphenate.easeui.EaseConstant;
 import com.hyphenate.easeui.R;
 import com.hyphenate.easeui.domain.EaseUser;
+import com.hyphenate.easeui.domain.User;
 import com.hyphenate.util.EMLog;
 import com.hyphenate.util.HanziToPinyin;
 import com.hyphenate.util.HanziToPinyin.Token;
@@ -37,7 +38,7 @@ public class EaseCommonUtils {
 	private static final String TAG = "CommonUtils";
 	/**
 	 * check if network avalable
-	 * 
+	 *
 	 * @param context
 	 * @return
 	 */
@@ -55,13 +56,13 @@ public class EaseCommonUtils {
 
 	/**
 	 * check if sdcard exist
-	 * 
+	 *
 	 * @return
 	 */
 	public static boolean isSdcardExist() {
 		return android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED);
 	}
-	
+
 	public static EMMessage createExpressionMessage(String toChatUsername, String expressioName, String identityCode){
 	    EMMessage message = EMMessage.createTxtSendMessage("["+expressioName+"]", toChatUsername);
         if(identityCode != null){
@@ -73,7 +74,7 @@ public class EaseCommonUtils {
 
 	/**
      * Get digest according message type and content
-     * 
+     *
      * @param message
      * @param context
      * @return
@@ -125,11 +126,11 @@ public class EaseCommonUtils {
 
         return digest;
     }
-    
+
     static String getString(Context context, int resId){
         return context.getResources().getString(resId);
     }
-	
+
 	/**
 	 * get top activity
 	 * @param context
@@ -144,17 +145,49 @@ public class EaseCommonUtils {
 		else
 			return "";
 	}
-	
-	/**
-     * set initial letter of according user's nickname( username if no nickname)
-     * 
-     * @param username
-     * @param user
-     */
+    public static void setAppUserInitialLetter(User user) {
+        final String DefaultLetter = "#";
+        String letter = DefaultLetter;
+
+        final class GetInitialLetter {
+            String getLetter(String name) {
+                if (TextUtils.isEmpty(name)) {
+                    return DefaultLetter;
+                }
+                char char0 = name.toLowerCase().charAt(0);
+                if (Character.isDigit(char0)) {
+                    return DefaultLetter;
+                }
+                ArrayList<Token> l = HanziToPinyin.getInstance().get(name.substring(0, 1));
+                if (l != null && l.size() > 0 && l.get(0).target.length() > 0) {
+                    Token token = l.get(0);
+                    String letter = token.target.substring(0, 1).toUpperCase();
+                    char c = letter.charAt(0);
+                    if (c < 'A' || c > 'Z') {
+                        return DefaultLetter;
+                    }
+                    return letter;
+                }
+                return DefaultLetter;
+            }
+        }
+
+        if (!TextUtils.isEmpty(user.getMUserNick())) {
+            letter = new GetInitialLetter().getLetter(user.getMUserNick());
+            user.setInitialLetter(letter);
+            return;
+        }
+        if (letter.equals(DefaultLetter) && !TextUtils.isEmpty(user.getMUserName())) {
+            letter = new GetInitialLetter().getLetter(user.getMUserName());
+        }
+        user.setInitialLetter(letter);
+    }
+
+
     public static void setUserInitialLetter(EaseUser user) {
         final String DefaultLetter = "#";
         String letter = DefaultLetter;
-        
+
         final class GetInitialLetter {
             String getLetter(String name) {
                 if (TextUtils.isEmpty(name)) {
@@ -178,18 +211,18 @@ public class EaseCommonUtils {
                 return DefaultLetter;
             }
         }
-        
+
         if ( !TextUtils.isEmpty(user.getNick()) ) {
             letter = new GetInitialLetter().getLetter(user.getNick());
             user.setInitialLetter(letter);
             return;
-        } 
+        }
         if (letter.equals(DefaultLetter) && !TextUtils.isEmpty(user.getUsername())) {
             letter = new GetInitialLetter().getLetter(user.getUsername());
         }
         user.setInitialLetter(letter);
     }
-    
+
     /**
      * change the chat type to EMConversationType
      * @param chatType

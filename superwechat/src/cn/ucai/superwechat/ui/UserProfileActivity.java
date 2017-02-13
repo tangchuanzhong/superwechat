@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
@@ -31,15 +32,19 @@ import java.io.ByteArrayOutputStream;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import cn.ucai.superwechat.I;
 import cn.ucai.superwechat.R;
 import cn.ucai.superwechat.SuperWeChatHelper;
 import cn.ucai.superwechat.domain.Result;
 import cn.ucai.superwechat.net.NetDao;
 import cn.ucai.superwechat.net.OnCompleteListener;
+import cn.ucai.superwechat.utils.CommonUtils;
 import cn.ucai.superwechat.utils.MFGT;
+import cn.ucai.superwechat.utils.PreferenceManager;
 import cn.ucai.superwechat.utils.ResultUtils;
 
 public class UserProfileActivity extends BaseActivity implements OnClickListener {
+    private static final String TAG = UserProfileActivity.class.getSimpleName();
 
     private static final int REQUESTCODE_PICK = 1;
     private static final int REQUESTCODE_CUTTING = 2;
@@ -72,26 +77,26 @@ public class UserProfileActivity extends BaseActivity implements OnClickListener
     }
 
     private void initListener() {
-        String username=EMClient.getInstance().getCurrentUser();
-        tvUserinfoName.setText("微信号:"+username);
-        EaseUserUtils.setAppUserNick(username,tvUserinfoNick);
-        EaseUserUtils.setAppUserAvatar(this,username,ivUserinfoAvatar);
+        String username = EMClient.getInstance().getCurrentUser();
+        tvUserinfoName.setText("微信号:" + username);
+        EaseUserUtils.setAppUserNick(username, tvUserinfoNick);
+        EaseUserUtils.setAppUserAvatar(this, username, ivUserinfoAvatar);
     }
 
     public void asyncFetchUserInfo(String username) {
         NetDao.getUserInfoByUsername(this, username, new OnCompleteListener<String>() {
             @Override
             public void onSuccess(String s) {
-                if (s!=null){
-                    Result result= ResultUtils.getResultFromJson(s,User.class);
-                    if (result!=null&&result.isRetMsg()){
-                        User user= (User) result.getRetData();
-                        if (user!=null){
+                if (s != null) {
+                    Result result = ResultUtils.getResultFromJson(s, User.class);
+                    if (result != null && result.isRetMsg()) {
+                        User user = (User) result.getRetData();
+                        if (user != null) {
                             SuperWeChatHelper.getInstance().saveAppContact(user);
                             tvUserinfoNick.setText(user.getMUserNick());
-                            if (!TextUtils.isEmpty(user.getAvatar())){
+                            if (!TextUtils.isEmpty(user.getAvatar())) {
                                 Glide.with(UserProfileActivity.this).load(user.getAvatar()).placeholder(R.drawable.default_hd_avatar).into(ivUserinfoAvatar);
-                            }else {
+                            } else {
                                 Glide.with(UserProfileActivity.this).load(R.drawable.default_hd_avatar).into(ivUserinfoAvatar);
                             }
                         }
@@ -136,6 +141,47 @@ public class UserProfileActivity extends BaseActivity implements OnClickListener
 
     private void updateRemoteNick(final String nickName) {
         dialog = ProgressDialog.show(this, getString(R.string.dl_update_nick), getString(R.string.dl_waiting));
+
+        NetDao.updateUsernick(this, EMClient.getInstance().getCurrentUser(), nickName,
+                new OnCompleteListener<String>() {
+                    @Override
+                    public void onSuccess(String s) {
+                        Log.e(TAG, "onSuccess" );
+                        dialog.dismiss();
+                        if (s != null) {
+                            Log.e(TAG, "s=" + s );
+                            Result result = ResultUtils.getResultFromJson(s, User.class);
+                            if (result != null) {
+                                if (result.isRetMsg()) {
+                                    User user = (User) result.getRetData();
+                                    Log.e(TAG, "user=" + user);
+                                    if (user != null) {
+                                        PreferenceManager.getInstance().setCurrentUserNick(nickName);
+                                        SuperWeChatHelper.getInstance().saveAppContact(user);
+                                        tvUserinfoNick.setText(nickName);
+                                        CommonUtils.showShortToast(R.string.toast_updatenick_success);
+                                    }
+                                } else {
+                                    if (result.getRetCode() == I.MSG_USER_SAME_NICK) {
+                                        CommonUtils.showShortToast("昵称未修改");
+                                    } else {
+                                        CommonUtils.showShortToast(R.string.toast_updatenick_fail);
+                                    }
+                                }
+                            } else {
+                                CommonUtils.showShortToast(R.string.toast_updatenick_fail);
+                            }
+                        } else {
+                            CommonUtils.showShortToast(R.string.toast_updatenick_fail);
+                        }
+                    }
+
+                    @Override
+                    public void onError(String error) {
+                        dialog.dismiss();
+                        CommonUtils.showShortToast(R.string.toast_updatenick_fail);
+                    }
+                });
         new Thread(new Runnable() {
 
             @Override

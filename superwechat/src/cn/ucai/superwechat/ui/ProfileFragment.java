@@ -98,13 +98,4 @@ public class ProfileFragment extends Fragment {
                 break;
         }
     }
-//    @Override
-//    public void onSaveInstanceState(Bundle outState) {
-//        super.onSaveInstanceState(outState);
-//        if(((MainActivity)this).isConflict){
-//            outState.putBoolean("isConflict", true);
-//        }else if(((MainActivity)this).getCurrentAccountRemoved()){
-//            outState.putBoolean(Constant.ACCOUNT_REMOVED, true);
-//        }
-//    }
 }

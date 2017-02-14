@@ -66,6 +66,8 @@ public class UserProfileActivity extends BaseActivity implements OnClickListener
     TextView tvUserinfoName;
     private ProgressDialog dialog;
 
+    User use=null;
+
 
     @Override
     protected void onCreate(Bundle arg0) {
@@ -74,6 +76,7 @@ public class UserProfileActivity extends BaseActivity implements OnClickListener
         ButterKnife.bind(this);
         initView();
         initListener();
+        //use=EaseUserUtils.getCurrentAppUserInfo();
     }
 
     private void initView() {

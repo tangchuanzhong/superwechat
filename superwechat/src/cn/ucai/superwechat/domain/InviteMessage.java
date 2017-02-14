@@ -22,10 +22,38 @@ public class InviteMessage {
 	private String groupId;
 	private String groupName;
 	private String groupInviter;
-	
+
 
 	private int id;
-	
+
+	private String usernick;
+	private String avatarSuffix;
+	private String avatarTime;
+
+	public String getUsernick() {
+		return usernick;
+	}
+
+	public void setUsernick(String usernick) {
+		this.usernick = usernick;
+	}
+
+	public String getAvatarSuffix() {
+		return avatarSuffix;
+	}
+
+	public void setAvatarSuffix(String avatarSuffix) {
+		this.avatarSuffix = avatarSuffix;
+	}
+
+	public String getAvatarTime() {
+		return avatarTime;
+	}
+
+	public void setAvatarTime(String avatarTime) {
+		this.avatarTime = avatarTime;
+	}
+
 	public String getFrom() {
 		return from;
 	}
@@ -121,7 +149,11 @@ public class InviteMessage {
         /**remote user declined your invitation**/
 		GROUPINVITATION_DECLINED
 	}
-	
+
+	public String getAvatar(){
+		String path="http://101.251.196.90:8000/SuperWeChatServerV2.0/downloadAvatar?name_or_hxid="+getFrom()+"&avatarType=user_avatar&m_avatar_suffix="+getAvatarSuffix()+"&updatetime="+getAvatarTime();
+		return path;
+	}
 }
 
 

@@ -1,6 +1,5 @@
 package cn.ucai.superwechat.ui;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -18,7 +17,7 @@ import cn.ucai.superwechat.R;
 import cn.ucai.superwechat.SuperWeChatHelper;
 import cn.ucai.superwechat.utils.MFGT;
 
-public class FrientProfileActivity extends Activity {
+public class FrientProfileActivity extends BaseActivity {
 
     @BindView(R.id.img_back)
     ImageView imgBack;
@@ -36,7 +35,7 @@ public class FrientProfileActivity extends Activity {
     Button btnSendMsg;
     @BindView(R.id.btn_send_video)
     Button btnSendVideo;
-    User user=null;
+    User user = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,38 +50,43 @@ public class FrientProfileActivity extends Activity {
         profileImage.setVisibility(View.VISIBLE);
         txtTitle.setVisibility(View.VISIBLE);
         txtTitle.setText(R.string.userinfo_txt_title);
-        user= (User) getIntent().getSerializableExtra(I.User.USER_NAME);
-        if (user!=null){
+        user = (User) getIntent().getSerializableExtra(I.User.USER_NAME);
+        if (user != null) {
             showUserInfo();
-        }else {
+        } else {
             MFGT.finish(this);
         }
     }
 
     private void showUserInfo() {
         tvUserinfoNick.setText(user.getMUserNick());
-        EaseUserUtils.setAppUserAvatarByPath(this,user.getAvatar(),profileImage);
-        tvUserinfoName.setText("微信号:"+user.getMUserName());
-        if (isFrient()){
+        EaseUserUtils.setAppUserAvatarByPath(this, user.getAvatar(), profileImage);
+        tvUserinfoName.setText("微信号:" + user.getMUserName());
+        if (isFrient()) {
             btnSendMsg.setVisibility(View.VISIBLE);
             btnSendVideo.setVisibility(View.VISIBLE);
-        }else {
+        } else {
             btnAddContact.setVisibility(View.VISIBLE);
         }
     }
 
-    private boolean isFrient(){
-        User u= SuperWeChatHelper.getInstance().getAppContactList().get(user.getMUserName());
-        if (u==null){
+    private boolean isFrient() {
+        User u = SuperWeChatHelper.getInstance().getAppContactList().get(user.getMUserName());
+        if (u == null) {
             return false;
-        }else {
+        } else {
             SuperWeChatHelper.getInstance().saveAppContact(user);
             return true;
         }
     }
 
     @OnClick(R.id.img_back)
-    public void onClick() {
+    public void imgBack() {
         MFGT.finish(this);
+    }
+
+    @OnClick(R.id.btn_add_contact)
+    public void sendAddContactMsg() {
+        MFGT.gotoAddFrient(this,user.getMUserName());
     }
 }

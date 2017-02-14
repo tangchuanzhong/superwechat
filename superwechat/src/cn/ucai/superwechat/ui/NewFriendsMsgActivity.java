@@ -62,7 +62,7 @@ public class NewFriendsMsgActivity extends BaseActivity {
     private void initView() {
         imgBack.setVisibility(View.VISIBLE);
         txtTitle.setVisibility(View.VISIBLE);
-        txtTitle.setText(R.string.Application_and_notify);
+        txtTitle.setText(R.string.recommended_friends);
         txtRight.setVisibility(View.VISIBLE);
     }
 

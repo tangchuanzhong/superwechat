@@ -45,7 +45,9 @@ public class AddFrientActivity extends BaseActivity {
     private void initData() {
         username = getIntent().getStringExtra(I.User.USER_NAME);
         if (username != null) {
-            etMsg.setText("我是" + PreferenceManager.getInstance().getCurrentUserNick());
+            //etMsg.setText("我是" + PreferenceManager.getInstance().getCurrentUserNick());
+            etMsg.setText("我是" + SuperWeChatHelper.getInstance().getAppContactList()
+                    .get(EMClient.getInstance().getCurrentUser()).getMUserNick());
         } else {
             MFGT.finish(this);
         }

@@ -1,6 +1,7 @@
 package cn.ucai.superwechat;
 
 import android.app.Activity;
+import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +11,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.easemob.redpacketsdk.constant.RPConstant;
+import com.easemob.redpacketsdk.utils.RequestUtil;
 import com.easemob.redpacketui.utils.RedPacketUtil;
 import com.hyphenate.EMCallBack;
 import com.hyphenate.EMConnectionListener;
@@ -661,7 +663,8 @@ public class SuperWeChatHelper {
     public class MyContactListener implements EMContactListener {
 
         @Override
-        public void onContactAdded(String username) {
+        public void onContactAdded(final String username) {
+            Log.e("main","onContactAdded...username"+username);
             // save contact
             Map<String, EaseUser> localUsers = getContactList();
             Map<String, EaseUser> toAddUsers = new HashMap<String, EaseUser>();
@@ -673,6 +676,31 @@ public class SuperWeChatHelper {
             toAddUsers.put(username, user);
             localUsers.putAll(toAddUsers);
 
+            NetDao.addContact(appContext, EMClient.getInstance().getCurrentUser(), username,
+                    new OnCompleteListener<String>() {
+                        @Override
+                        public void onSuccess(String s) {
+                            Log.e("main","onContactAdded...s"+s);
+                            if (s!=null){
+                                Result result=ResultUtils.getResultFromJson(s,User.class);
+                                if (result!=null){
+                                    if (result.isRetMsg()){
+                                        User user= (User) result.getRetData();
+                                        if (!getAppContactList().containsKey(username)){
+                                            getAppContactList().put(username,user);
+                                            userDao.saveAppContact(user);
+                                            broadcastManager.sendBroadcast(new Intent(Constant.ACTION_CONTACT_CHANAGED));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onError(String error) {
+
+                        }
+                    });
             broadcastManager.sendBroadcast(new Intent(Constant.ACTION_CONTACT_CHANAGED));
         }
 

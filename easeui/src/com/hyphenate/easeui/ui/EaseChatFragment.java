@@ -452,7 +452,7 @@ public class EaseChatFragment extends EaseBaseFragment implements EMMessageListe
 
     public void onBackPressed() {
         if (inputMenu.onBackPressed()) {
-            getActivity().finish();
+            //getActivity().finish();
             if(chatType == EaseConstant.CHATTYPE_GROUP){
                 EaseAtMessageHelper.get().removeAtMeGroup(toChatUsername);
                 EaseAtMessageHelper.get().cleanToAtUserList();
@@ -461,6 +461,7 @@ public class EaseChatFragment extends EaseBaseFragment implements EMMessageListe
             	EMClient.getInstance().chatroomManager().leaveChatRoom(toChatUsername);
             }
         }
+        getActivity().onBackPressed();
     }
 
     protected void onChatRoomViewCreation() {

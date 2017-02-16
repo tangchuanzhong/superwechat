@@ -131,7 +131,7 @@ public class FrientProfileActivity extends BaseActivity {
 
     @OnClick(R.id.btn_send_video)
     public void sendVideo() {
-        startActivity(new Intent(this,VoiceCallActivity.class)
+        startActivity(new Intent(this,VideoCallActivity.class)
         .putExtra("username",user.getMUserName())
         .putExtra("isComingCall",false));
     }

@@ -18,6 +18,7 @@ import java.util.Map;
 
 import com.hyphenate.chat.EMClient;
 
+import cn.ucai.superwechat.Constant;
 import cn.ucai.superwechat.SuperWeChatHelper;
 import cn.ucai.superwechat.SuperWeChatHelper.DataSyncListener;
 import cn.ucai.superwechat.R;
@@ -289,7 +290,7 @@ public class ContactListFragment extends EaseContactListFragment {
                             pd.dismiss();
                             contactList.remove(tobeDeleteUser);
                             contactListLayout.refresh();
-
+                            getActivity().sendBroadcast(new Intent(Constant.ACTION_CONTACT_CHANAGED));
                         }
                     });
                 } catch (final Exception e) {

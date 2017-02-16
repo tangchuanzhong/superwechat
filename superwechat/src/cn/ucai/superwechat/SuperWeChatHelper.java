@@ -1192,6 +1192,7 @@ public class SuperWeChatHelper {
                    new OnCompleteListener<String>() {
                        @Override
                        public void onSuccess(String s) {
+                           Log.e("main","asyncFetchContactsFromServer,s="+s);
                            if (s!=null){
                                Result result=ResultUtils.getListResultFromJson(s,User.class);
                                if (result!=null&&result.isRetMsg()){

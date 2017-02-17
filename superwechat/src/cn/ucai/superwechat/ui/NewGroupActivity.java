@@ -29,9 +29,20 @@ import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMGroup;
 import com.hyphenate.chat.EMGroupManager.EMGroupOptions;
 import com.hyphenate.chat.EMGroupManager.EMGroupStyle;
+
+import cn.ucai.superwechat.I;
 import cn.ucai.superwechat.R;
+import cn.ucai.superwechat.domain.Result;
+import cn.ucai.superwechat.net.NetDao;
+import cn.ucai.superwechat.net.OnCompleteListener;
+import cn.ucai.superwechat.utils.CommonUtils;
+import cn.ucai.superwechat.utils.ResultUtils;
+
+import com.hyphenate.easeui.domain.Group;
 import com.hyphenate.easeui.widget.EaseAlertDialog;
 import com.hyphenate.exceptions.HyphenateException;
+
+import java.io.File;
 
 public class NewGroupActivity extends BaseActivity {
 	private EditText groupNameEditText;
@@ -109,14 +120,8 @@ public class NewGroupActivity extends BaseActivity {
 						}
                         EMGroup group=EMClient.getInstance().groupManager().createGroup(groupName, desc, members, reason, option);
 						String hxid=group.getGroupId();
-						createAppGroup();
-						runOnUiThread(new Runnable() {
-							public void run() {
-								progressDialog.dismiss();
-								setResult(RESULT_OK);
-								finish();
-							}
-						});
+						createAppGroup(group);
+
 					} catch (final HyphenateException e) {
 						runOnUiThread(new Runnable() {
 							public void run() {
@@ -131,8 +136,48 @@ public class NewGroupActivity extends BaseActivity {
 		}
 	}
 
-	private void createAppGroup() {
+	private void createAppGroup(EMGroup group) {
+		File file=null;
+		NetDao.createGroup(this, group, file, new OnCompleteListener<String>() {
+			@Override
+			public void onSuccess(String s) {
+				if (s!=null){
+					Result result= ResultUtils.getResultFromJson(s, Group.class);
+					if (result!=null){
+						if (result.isRetMsg()){
+							createGroupSuccess();
+						}else {
+							progressDialog.dismiss();
+							if (result.getRetCode()==I.MSG_GROUP_HXID_EXISTS){
+								CommonUtils.showShortToast("群组环信ID已经存在");
+							}
+							if (result.getRetCode()==I.MSG_GROUP_CREATE_FAIL){
+								CommonUtils.showShortToast(R.string.Failed_to_create_groups);
+							}
+						}
+					}
+				}
+			}
+
+			@Override
+			public void onError(String error) {
+                progressDialog.dismiss();
+				CommonUtils.showShortToast(R.string.Failed_to_create_groups);
+			}
+		});
 	}
+
+	private void createGroupSuccess(){
+		runOnUiThread(new Runnable() {
+			public void run() {
+				progressDialog.dismiss();
+				setResult(RESULT_OK);
+				finish();
+			}
+		});
+	}
+
+
 
 	public void back(View view) {
 		finish();

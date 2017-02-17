@@ -102,6 +102,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/layout_group_icon"
         android:layout_width="match_parent"
         android:layout_height="39dp"
         android:layout_marginBottom="10dp"

@@ -25,6 +25,7 @@ import android.nfc.Tag;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -63,6 +64,7 @@ import cn.ucai.superwechat.utils.L;
 import cn.ucai.superwechat.utils.ResultUtils;
 
 public class NewGroupActivity extends BaseActivity {
+    private static final String TAG = NewGroupActivity.class.getSimpleName();
     @BindView(R.id.edit_group_name)
     EditText groupNameEditText;
     @BindView(R.id.edit_group_introduction)
@@ -76,7 +78,7 @@ public class NewGroupActivity extends BaseActivity {
     @BindView(R.id.cb_member_inviter)
     CheckBox memberCheckbox;
     private ProgressDialog progressDialog;
-    File file=null;
+    File file = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,7 +164,7 @@ public class NewGroupActivity extends BaseActivity {
                     }
                     EMGroup group = EMClient.getInstance().groupManager().createGroup(groupName, desc, members, reason, option);
                     String hxid = group.getGroupId();
-                    createAppGroup(group);
+                    createAppGroup(group, members);
 
                 } catch (final HyphenateException e) {
                     runOnUiThread(new Runnable() {
@@ -177,7 +179,7 @@ public class NewGroupActivity extends BaseActivity {
         }).start();
     }
 
-    private void createAppGroup(final EMGroup group) {
+    private void createAppGroup(final EMGroup group, final String[] members) {
         NetDao.createGroup(this, group, file, new OnCompleteListener<String>() {
             @Override
             public void onSuccess(String s) {
@@ -185,9 +187,13 @@ public class NewGroupActivity extends BaseActivity {
                     Result result = ResultUtils.getResultFromJson(s, Group.class);
                     if (result != null) {
                         if (result.isRetMsg()) {
-                            if (group.getMemberCount()>1){
-                                addGroupMembers(group);
-                            }else {
+//                            L.e("main","group.getMemberCount()="+group.getMemberCount());
+//                            L.e("main","group.getMembers()="+group.getMembers());
+//                            L.e("main","group.getMembers()="+group.getMembers().toString());
+                            if (group.getMemberCount() > 1) {
+                                Log.e(TAG, "group.getMemberCount()=" + group.getMemberCount());
+                                addGroupMembers(group.getGroupId(), members);
+                            } else {
                                 createGroupSuccess();
                             }
                         } else {
@@ -211,23 +217,23 @@ public class NewGroupActivity extends BaseActivity {
         });
     }
 
-    private void addGroupMembers(EMGroup group) {
-        getGroupMembers(group.getMembers());
-        NetDao.addGroupMembers(this, group.getMembers().toString(), group.getGroupId(),
+    private void addGroupMembers(String hxid, String[] members) {
+        L.e(TAG,"addGroupMembers" );
+        NetDao.addGroupMembers(this, getGroupMembers(members), hxid,
                 new OnCompleteListener<String>() {
                     @Override
                     public void onSuccess(String s) {
-                        L.e("main","s="+s);
+                        L.e("main", "s=" + s);
                         progressDialog.dismiss();
-                        boolean success=false;
-                         if (s!=null){
-                             Result result=ResultUtils.getResultFromJson(s, I.Group.class);
-                             if (result!=null&&result.isRetMsg()){
-                                 success=true;
-                                 createGroupSuccess();
-                             }
-                         }
-                        if (!success){
+                        boolean success = false;
+                        if (s != null) {
+                            Result result = ResultUtils.getResultFromJson(s, Group.class);
+                            if (result != null && result.isRetMsg()) {
+                                success = true;
+                                createGroupSuccess();
+                            }
+                        }
+                        if (!success) {
                             CommonUtils.showShortToast(R.string.Failed_to_create_groups);
                         }
                     }
@@ -240,22 +246,21 @@ public class NewGroupActivity extends BaseActivity {
                 });
     }
 
-    private String getGroupMembers(List<String> members) {
-        String membersStr="";
-        members.remove(EMClient.getInstance().getCurrentUser());
-        if (members.size()>0){
-            for (String s:members){
-                membersStr+=s+",";
+    private String getGroupMembers(String[] members) {
+        String membersStr = "";
+        if (members.length > 0) {
+            for (String s : members) {
+                membersStr += s + ",";
             }
         }
-        L.e("main","getGroupMembers,s="+membersStr);
+        L.e("main", "getGroupMembers,s=" + membersStr);
         return membersStr;
     }
 
     private void createGroupSuccess() {
         runOnUiThread(new Runnable() {
             public void run() {
-                if (progressDialog!=null&&progressDialog.isShowing()){
+                if (progressDialog != null && progressDialog.isShowing()) {
                     progressDialog.dismiss();
                 }
                 setResult(RESULT_OK);
@@ -309,18 +314,18 @@ public class NewGroupActivity extends BaseActivity {
         startActivityForResult(intent, I.REQUESTCODE_CUTTING);
     }
 
-    private void saveBitmapFile(Intent picdata){
-        Bundle extras=picdata.getExtras();
-        if (extras !=null){
-            Bitmap bitmap=extras.getParcelable("data");
-            Drawable drawable=new BitmapDrawable(getResources(),bitmap);
+    private void saveBitmapFile(Intent picdata) {
+        Bundle extras = picdata.getExtras();
+        if (extras != null) {
+            Bitmap bitmap = extras.getParcelable("data");
+            Drawable drawable = new BitmapDrawable(getResources(), bitmap);
             ivAvatar.setImageDrawable(drawable);
 
-            String imagePath= EaseImageUtils.getImagePath(EMClient.getInstance().getCurrentUser()+I.AVATAR_SUFFIX_JPG);
-            file=new File(imagePath);
-            try{
-                BufferedOutputStream bos=new BufferedOutputStream(new FileOutputStream(file));
-                bitmap.compress(Bitmap.CompressFormat.JPEG,100,bos);
+            String imagePath = EaseImageUtils.getImagePath(EMClient.getInstance().getCurrentUser() + I.AVATAR_SUFFIX_JPG);
+            file = new File(imagePath);
+            try {
+                BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos);
                 bos.flush();
                 bos.close();
             } catch (IOException e) {

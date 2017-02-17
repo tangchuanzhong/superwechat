@@ -21,6 +21,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
@@ -47,6 +48,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -57,6 +59,7 @@ import cn.ucai.superwechat.domain.Result;
 import cn.ucai.superwechat.net.NetDao;
 import cn.ucai.superwechat.net.OnCompleteListener;
 import cn.ucai.superwechat.utils.CommonUtils;
+import cn.ucai.superwechat.utils.L;
 import cn.ucai.superwechat.utils.ResultUtils;
 
 public class NewGroupActivity extends BaseActivity {
@@ -174,7 +177,7 @@ public class NewGroupActivity extends BaseActivity {
         }).start();
     }
 
-    private void createAppGroup(EMGroup group) {
+    private void createAppGroup(final EMGroup group) {
         NetDao.createGroup(this, group, file, new OnCompleteListener<String>() {
             @Override
             public void onSuccess(String s) {
@@ -182,7 +185,11 @@ public class NewGroupActivity extends BaseActivity {
                     Result result = ResultUtils.getResultFromJson(s, Group.class);
                     if (result != null) {
                         if (result.isRetMsg()) {
-                            createGroupSuccess();
+                            if (group.getMemberCount()>1){
+                                addGroupMembers(group);
+                            }else {
+                                createGroupSuccess();
+                            }
                         } else {
                             progressDialog.dismiss();
                             if (result.getRetCode() == I.MSG_GROUP_HXID_EXISTS) {
@@ -204,10 +211,53 @@ public class NewGroupActivity extends BaseActivity {
         });
     }
 
+    private void addGroupMembers(EMGroup group) {
+        getGroupMembers(group.getMembers());
+        NetDao.addGroupMembers(this, group.getMembers().toString(), group.getGroupId(),
+                new OnCompleteListener<String>() {
+                    @Override
+                    public void onSuccess(String s) {
+                        L.e("main","s="+s);
+                        progressDialog.dismiss();
+                        boolean success=false;
+                         if (s!=null){
+                             Result result=ResultUtils.getResultFromJson(s, I.Group.class);
+                             if (result!=null&&result.isRetMsg()){
+                                 success=true;
+                                 createGroupSuccess();
+                             }
+                         }
+                        if (!success){
+                            CommonUtils.showShortToast(R.string.Failed_to_create_groups);
+                        }
+                    }
+
+                    @Override
+                    public void onError(String error) {
+                        progressDialog.dismiss();
+                        CommonUtils.showShortToast(R.string.Failed_to_create_groups);
+                    }
+                });
+    }
+
+    private String getGroupMembers(List<String> members) {
+        String membersStr="";
+        members.remove(EMClient.getInstance().getCurrentUser());
+        if (members.size()>0){
+            for (String s:members){
+                membersStr+=s+",";
+            }
+        }
+        L.e("main","getGroupMembers,s="+membersStr);
+        return membersStr;
+    }
+
     private void createGroupSuccess() {
         runOnUiThread(new Runnable() {
             public void run() {
-                progressDialog.dismiss();
+                if (progressDialog!=null&&progressDialog.isShowing()){
+                    progressDialog.dismiss();
+                }
                 setResult(RESULT_OK);
                 finish();
             }

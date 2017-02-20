@@ -221,7 +221,18 @@ public class GroupDetailsActivity extends BaseActivity implements OnClickListene
 				if(!TextUtils.isEmpty(returnData)){
 					progressDialog.setMessage(st5);
 					progressDialog.show();
-					
+					NetDao.updateGroupName(GroupDetailsActivity.this, groupId, returnData,
+							new OnCompleteListener<String>() {
+								@Override
+								public void onSuccess(String s) {
+
+								}
+
+								@Override
+								public void onError(String error) {
+
+								}
+							});
 					new Thread(new Runnable() {
 						public void run() {
 							try {

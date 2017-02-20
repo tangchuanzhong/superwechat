@@ -330,7 +330,7 @@ public class GroupDetailsActivity extends BaseActivity implements OnClickListene
 	 */
 	private void exitGrop() {
 		String st1 = getResources().getString(R.string.Exit_the_group_chat_failure);
-		NetDao.removeGroupMemer(getContext(), groupId, EMClient.getInstance().getCurrentUser(),
+		NetDao.removeGroupMemer(this, groupId, EMClient.getInstance().getCurrentUser(),
 				new OnCompleteListener<String>() {
 					@Override
 					public void onSuccess(String s) {

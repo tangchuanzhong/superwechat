@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 
+import com.hyphenate.chat.EMClient;
 import com.hyphenate.easeui.domain.User;
 
 import java.util.ArrayList;
@@ -50,15 +51,15 @@ public class MFGT {
     public static void gotoRegister(Activity activity){
         startActivity(activity, RegisterActivity.class);
     }
-    public static void gotoGuide(SplashActivity activity) {
+    public static void gotoGuide(Activity activity) {
         startActivity(activity, GuideActivity.class);
     }
 
-    public static void gotoSettings(FragmentActivity activity) {
+    public static void gotoSettings(Activity activity) {
         startActivity(activity, SettingsActivity.class);
     }
 
-    public static void gotoProfile(FragmentActivity activity) {
+    public static void gotoProfile(Activity activity) {
         startActivity(activity, UserProfileActivity.class);
     }
     public static void gotoAddContact(Activity activity) {
@@ -71,8 +72,12 @@ public class MFGT {
     }
 
     public static void gotoFirent(Activity activity, String username) {
-        startActivity(activity,new Intent(activity, FrientProfileActivity.class)
-                .putExtra(I.User.USER_NAME,username));
+        if (username.equals(EMClient.getInstance().getCurrentUser())){
+            gotoProfile(activity);
+        }else {
+            startActivity(activity, new Intent(activity, FrientProfileActivity.class)
+                    .putExtra(I.User.USER_NAME, username));
+        }
     }
 
     public static void gotoAddFrient(Activity activity, String userName) {
